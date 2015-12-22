@@ -24,6 +24,8 @@ import webbrowser
 import csv
 from decimal import Decimal
 import base64
+import json
+import sys
 
 import PyQt4
 from PyQt4.QtGui import *
@@ -45,6 +47,7 @@ from electrum_dash import SimpleConfig, Wallet, WalletStorage
 from electrum_dash import Imported_Wallet
 from electrum_dash import paymentrequest
 from electrum_dash.contacts import Contacts
+from electrum_dash.dapi import DAPIWebSocket
 
 from amountedit import AmountEdit, BTCAmountEdit, MyLineEdit, BTCkBEdit
 from network_dialog import NetworkDialog
@@ -103,6 +106,29 @@ expiration_values = [
     (_('Never'), None)
 ]
 
+dapi = DAPIWebSocket()
+dapi.start()
+ex = {   
+    "object" : "dapi_command",
+    "data" : {
+        "command" : "get_private_data",
+        "my_uid" : "1337",
+        "target_uid" : "1337", 
+        "signature" : "SIG",
+        "slot" : 1
+    }
+}
+
+s = json.dumps(ex)
+print s
+dapi.send(s)
+
+result = False
+while not result:
+    result = dapi.receive()
+
+print result
+sys.exit()
 
 
 class ElectrumWindow(QMainWindow):
