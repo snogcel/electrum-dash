@@ -1325,7 +1325,6 @@ class ElectrumWindow(QMainWindow):
         self.waiting_dialog.start()
 
 
-
     def prepare_for_payment_request(self):
         self.tabs.setCurrentIndex(1)
         self.payto_e.is_pr = True
@@ -1861,16 +1860,13 @@ class ElectrumWindow(QMainWindow):
 
     def new_contact_dialog(self):
         d = QDialog(self)
-        d.setWindowTitle(_("New Contact"))
+        d.setWindowTitle(_("Send Invite"))
         vbox = QVBoxLayout(d)
-        vbox.addWidget(QLabel(_('New Contact') + ':'))
+        vbox.addWidget(QLabel(_('Send Invite To') + ':'))
         grid = QGridLayout()
         line1 = QLineEdit()
-        line2 = QLineEdit()
-        grid.addWidget(QLabel(_("Address")), 1, 0)
+        grid.addWidget(QLabel(_("Name")), 1, 0)
         grid.addWidget(line1, 1, 1)
-        grid.addWidget(QLabel(_("Name")), 2, 0)
-        grid.addWidget(line2, 2, 1)
 
         vbox.addLayout(grid)
         vbox.addLayout(Buttons(CancelButton(d), OkButton(d)))
@@ -1878,19 +1874,14 @@ class ElectrumWindow(QMainWindow):
         if not d.exec_():
             return
 
-        address = str(line1.text())
-        label = unicode(line2.text())
+        username = str(line1.text())
 
-        if not is_valid(address):
-            QMessageBox.warning(self, _('Error'), _('Invalid Address'), _('OK'))
-            return
-
-        self.contacts[label] = ('address', address)
+        self.contacts[username] = ('address', '{o}')
 
         self.update_contacts_tab()
         self.update_history_tab()
         self.update_completions()
-        self.tabs.setCurrentIndex(3)
+        #self.tabs.setCurrentIndex(3)
 
 
     @protected
