@@ -119,6 +119,8 @@ ex = {
     }
 }
 
+from time import sleep
+
 s = json.dumps(ex)
 print s
 dapi.send(s)
@@ -128,6 +130,10 @@ while not result:
     result = dapi.receive()
 
 print result
+sleep(5)
+
+dapi.close()
+sleep(1)
 sys.exit()
 
 
