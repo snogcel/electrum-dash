@@ -1867,43 +1867,6 @@ class ElectrumWindow(QMainWindow):
         elif i == 4:
             self.contacts_list.filter(t, [0, 1])  # Key, Value
 
-    def get_profile(self, username2):
-        username = self.wallet.storage.get('username',None)
-        if username == None:
-            print "Invalid username"
-            return "Invalid Username"
-
-        ex = {   
-            "object" : "dapi_command",
-            "data" : {
-                "command" : "get_private_data",
-                "my_uid" : username2,
-                "target_uid" : username, 
-                "signature" : "SIG",
-                "slot" : 1
-            }
-        }
-
-        s = json.dumps(ex)
-        print s
-        dapi.send(s)
-
-        count = 0
-        result = False
-        while True:
-            result = dapi.receive()
-            print result
-            if(result.find('"dapi_result"') > 0):
-                return result
-            sleep(.1)
-            count += 1
-
-            if count > 30:
-                return "Timeout"
-
-        return "Error"
-
-
     def new_contact_dialog(self):
         d = QDialog(self)
         d.setWindowTitle(_("Send Invite"))
@@ -1920,11 +1883,18 @@ class ElectrumWindow(QMainWindow):
         if not d.exec_():
             return
 
-        username = str(line1.text())
+        username = self.wallet.storage.get('username',None)
+        if username == None:
+            print "Invalid username"
+            return "Invalid Username"
 
-        result = self.get_profile("evan")
+        username2 = str(line1.text())
+        result = dapi.get_profile(username, username2)
+
         if not result: result = "Nothing"
         self.contacts[username] = ('address', result)
+
+        dapi.send_private_message(username, username2, "addr", json.dumps(["Xaddr1", "Xaddr2"]))
 
         self.update_contacts_tab()
         self.update_history_tab()
