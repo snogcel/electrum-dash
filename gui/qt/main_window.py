@@ -107,8 +107,13 @@ expiration_values = [
     (_('Never'), None)
 ]
 
+
 dapi = DAPIWebSocket()
-dapi.start()
+
+try:
+    dapi.start()
+except:
+    print "DAPI is not running"
 
 class ElectrumWindow(QMainWindow):
     labelsChanged = pyqtSignal()
