@@ -125,12 +125,12 @@ s = json.dumps(ex)
 print s
 dapi.send(s)
 
-result = False
-while not result:
-    result = dapi.receive()
 
-print result
-sleep(5)
+result = False
+while True:
+    result = dapi.receive()
+    print result
+    sleep(5)
 
 dapi.close()
 sleep(1)
