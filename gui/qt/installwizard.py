@@ -89,6 +89,7 @@ class InstallWizard(QDialog):
         vbox = QVBoxLayout()
         main_label = QLabel(_("Electrum-DASH could not find an existing wallet."))
         vbox.addWidget(main_label)
+        
         grid = QGridLayout()
         grid.setSpacing(5)
         gb1 = QGroupBox(_("What do you want to do?"))
@@ -103,6 +104,7 @@ class InstallWizard(QDialog):
         group1.addButton(b2)
         vbox.addWidget(b1)
         vbox.addWidget(b2)
+
 
         gb2 = QGroupBox(_("Wallet type:"))
         vbox.addWidget(gb2)
@@ -126,6 +128,12 @@ class InstallWizard(QDialog):
             if i==0:
                 button.setChecked(True)
 
+        #-------
+        vbox.addWidget(QLabel(_('What Is Your Dash Evolution Username?')))
+        line1 = QLineEdit()
+        vbox.addWidget(line1)
+        #-------
+
         vbox.addStretch(1)
         self.set_layout(vbox)
         vbox.addLayout(Buttons(CancelButton(self), OkButton(self, _('Next'))))
@@ -133,11 +141,13 @@ class InstallWizard(QDialog):
         self.raise_()
 
         if not self.exec_():
-            return None, None
+            return None, None, None
+
+        username = str(line1.text())
 
         action = 'create' if b1.isChecked() else 'restore'
         wallet_type = self.wallet_types[group2.checkedId()][0]
-        return action, wallet_type
+        return username, action, wallet_type
 
 
     def verify_seed(self, seed, sid, func=None):
@@ -417,7 +427,8 @@ class InstallWizard(QDialog):
         return run_password_dialog(self, None, self)[2]
 
 
-    def run(self, action, wallet_type):
+    def run(self, username, action, wallet_type):
+        self.storage.put('username', username, False)
 
         if action in ['create', 'restore']:
             if wallet_type == 'multisig':

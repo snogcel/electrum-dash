@@ -26,6 +26,7 @@ from decimal import Decimal
 import base64
 import json
 import sys
+from time import sleep
 
 import PyQt4
 from PyQt4.QtGui import *
@@ -108,34 +109,6 @@ expiration_values = [
 
 dapi = DAPIWebSocket()
 dapi.start()
-ex = {   
-    "object" : "dapi_command",
-    "data" : {
-        "command" : "get_private_data",
-        "my_uid" : "1337",
-        "target_uid" : "1337", 
-        "signature" : "SIG",
-        "slot" : 1
-    }
-}
-
-from time import sleep
-
-s = json.dumps(ex)
-print s
-dapi.send(s)
-
-
-result = False
-while True:
-    result = dapi.receive()
-    print result
-    sleep(5)
-
-dapi.close()
-sleep(1)
-sys.exit()
-
 
 class ElectrumWindow(QMainWindow):
     labelsChanged = pyqtSignal()
@@ -1889,6 +1862,42 @@ class ElectrumWindow(QMainWindow):
         elif i == 4:
             self.contacts_list.filter(t, [0, 1])  # Key, Value
 
+    def get_profile(self, username2):
+        username = self.wallet.storage.get('username',None)
+        if username == None:
+            print "Invalid username"
+            return "Invalid Username"
+
+        ex = {   
+            "object" : "dapi_command",
+            "data" : {
+                "command" : "get_private_data",
+                "my_uid" : username2,
+                "target_uid" : username, 
+                "signature" : "SIG",
+                "slot" : 1
+            }
+        }
+
+        s = json.dumps(ex)
+        print s
+        dapi.send(s)
+
+        count = 0
+        result = False
+        while True:
+            result = dapi.receive()
+            print result
+            if(result.find('"dapi_result"') > 0):
+                return result
+            sleep(.1)
+            count += 1
+
+            if count > 30:
+                return "Timeout"
+
+        return "Error"
+
 
     def new_contact_dialog(self):
         d = QDialog(self)
@@ -1908,7 +1917,9 @@ class ElectrumWindow(QMainWindow):
 
         username = str(line1.text())
 
-        self.contacts[username] = ('address', '{o}')
+        result = self.get_profile("evan")
+        if not result: result = "Nothing"
+        self.contacts[username] = ('address', result)
 
         self.update_contacts_tab()
         self.update_history_tab()
