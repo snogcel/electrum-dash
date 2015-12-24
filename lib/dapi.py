@@ -1,17 +1,33 @@
 from websocket import create_connection
 import json
 
+import websocket
+import threading
+from time import sleep
+
+messages = []
+
+def on_message(ws, message):
+    print "on_message", message
+    messages.append(message)
+
+def on_close(ws):
+    print "### closed ###"
+
 class DAPIWebSocket(object):    
     def start(self):
-        self._ws = create_connection("ws://localhost:5000")
+        websocket.enableTrace(True)
+        self._ws = websocket.WebSocketApp("ws://localhost:5000/", on_message = on_message, on_close = on_close)
+        self._wst = threading.Thread(target=self._ws.run_forever)
+        self._wst.daemon = True
+        self._wst.start()
 
     def send(self, json):
         self._ws.send(json)
 
     def receive(self):
-        result =  self._ws.recv()
-        if not result: return False
-        return result
+        if len(messages) > 0: return messages.pop()
+        return False
 
     def close(self):
         self._ws.close()
@@ -36,9 +52,11 @@ class DAPIWebSocket(object):
         result = False
         while True:
             result = self.receive()
-            print result
-            if(result.find('"dapi_result"') > 0):
-                return result
+            if result:
+                print result
+                if(result.find('"dapi_result"') > 0):
+                    return result
+            
             sleep(.1)
             count += 1
 
@@ -70,9 +88,11 @@ class DAPIWebSocket(object):
         result = False
         while True:
             result = self.receive()
-            print "Recieve:", result
-            if(result.find('"dapi_message"') > 0):
-                return result
+            if result:
+                print "Recieve:", result
+                if(result.find('"dapi_message"') > 0):
+                    return result
+                    
             sleep(.1)
             count += 1
 

@@ -113,7 +113,8 @@ dapi = DAPIWebSocket()
 try:
     dapi.start()
 except:
-    print "DAPI is not running"
+    raise
+    #print "DAPI is not running"
 
 class ElectrumWindow(QMainWindow):
     labelsChanged = pyqtSignal()
