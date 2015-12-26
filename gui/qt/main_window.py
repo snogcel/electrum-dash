@@ -121,6 +121,7 @@ class ElectrumWindow(QMainWindow):
     def __init__(self, config, network, gui_object):
         QMainWindow.__init__(self)
 
+        self.setObjectName("main_window_container")
         self.config = config
         self.network = network
         self.wallet = None
@@ -151,6 +152,7 @@ class ElectrumWindow(QMainWindow):
         tabs.addTab(self.create_console_tab(), _('Console') )
         tabs.setMinimumSize(600, 400)
         tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        tabs.setObjectName("main_window_nav_bar")
         self.setCentralWidget(tabs)
 
         try:
