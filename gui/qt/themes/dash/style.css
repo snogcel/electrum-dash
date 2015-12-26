@@ -1,3 +1,4 @@
+/* Lite Mode -- cloned from "CleanLook" theme */
 #main_window
 {
   background: qlineargradient(x1: 0, y1: 0, x2:0,y2:1, stop: 0 white , stop: 1 #E8E8E8);
@@ -61,36 +62,77 @@ MiniWindow QPushButton {
 }
 
 
-/* Begin Full Wallet CSS */
+/* Begin Dash Full Wallet CSS */
 
 #main_window_container { /* Wallet Container */
-
+    /* background-color:#fff; */
 }
 
-QTabBar::tab {
+/* Menu Bar */
+#main_window_container QMenuBar {
+    /* background-color:#fff; */
+}
+
+#main_window_container QMenuBar::item {
+    /* background-color:#fff; */
+}
+
+
+/* Navigation Bar */
+#main_window_nav_bar {
+    /* background-color:#fff; */
+    border:0;
+}
+
+#main_window_nav_bar QTabBar::tab {
     background-color:#f2f0f0;
     color:#333;
-    padding-left:10px;
-    padding-right:10px;
-    padding-top:5px;
-    padding-bottom:5px;
+    padding-left:.5em;
+    padding-right:.5em;
+    padding-top:.25em;
+    padding-bottom:.25em;
+    border:0;
 }
 
-QTabBar::tab:first {
-    border-left: 0px solid #d7d7d7;
+#main_window_nav_bar QTabBar::tab:first {
+    border-left: 0 solid #d7d7d7;
 }
 
-QTabBar::tab:last {
-    border-right: 0px solid #d7d7d7;
+#main_window_nav_bar QTabBar::tab:last {
+    border-right: 0 solid #d7d7d7;
 }
 
-QTabBar::tab:selected, QDialog .QTabWidget QTabBar::tab:hover {
+#main_window_nav_bar QTabBar::tab:selected, #main_window_nav_bar QTabBar::tab:hover {
     background-color:#1c75bc;
     color:#333;
 }
 
-QMenuBar::item { /* Menu Bar */
-
+/* History Container */
+#history_container {
+    /* background-color:#fff; */
 }
 
+/* Send Container */
+#send_container {
+    /* background-color:#fff; */
+}
 
+/* Receive Container */
+#receive_container {
+    /* background-color:#fff; */
+}
+
+/* Addressses Container */
+#addresses_container {
+    /* background-color:#fff; */
+}
+
+/* Contacts Container */
+#contacts_container {
+    /* background-color:#fff; */
+}
+
+/* Console Container */
+#console_container {
+    /* background-color:#fff; */
+}
