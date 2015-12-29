@@ -1737,11 +1737,16 @@ class ElectrumWindow(QMainWindow):
 
 
     def update_contacts_tab(self):
+        print "3"
         l = self.contacts_list
         item = l.currentItem()
         current_key = item.data(0, Qt.UserRole).toString() if item else None
         l.clear()
+
+        print "4"
+
         for key in sorted(self.contacts.keys()):
+            print "5"
             _type, obj = self.contacts[key]
             print "OBJ", key, _type, obj
             if "stars" in obj and "addresses" in obj:
@@ -1751,6 +1756,8 @@ class ElectrumWindow(QMainWindow):
                 l.addTopLevelItem(item)
                 if key == current_key:
                     l.setCurrentItem(item)
+
+        print "6"
         run_hook('update_contacts_tab', l)
 
 
@@ -1886,6 +1893,8 @@ class ElectrumWindow(QMainWindow):
             return "Invalid Username"
 
         username2 = str(line1.text())
+
+        ### ------  ADD CONTACT (TEMPORARY) -------------------
         obj = dapi.get_profile(username, username2)
 
         if not obj:
@@ -1893,13 +1902,17 @@ class ElectrumWindow(QMainWindow):
             return
         else:
             self.contacts[username2] = ('friend', obj)
-
-        #dapi.send_private_message(username, username2, "addr", json.dumps(["Xaddr1", "Xaddr2"]))
+        #### -------------------------
 
         self.update_contacts_tab()
         self.update_history_tab()
         self.update_completions()
         #self.tabs.setCurrentIndex(3)
+        
+        #this will eventually ask the user to sign a friend request message
+        #dapi.send_private_message(username, username2, "friend-request", username))
+        dapi.send_private_message(username, username2, "addr-request", username)
+
 
 
     @protected

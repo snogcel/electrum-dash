@@ -60,14 +60,34 @@ class DAPIWebSocket(object):
         # }
        
 
-        # if(message["object"] != "dapi_message"):
-        #     return False
+        if(message["object"] != "dapi_message"):
+            return False
 
-        # if(message["data"]["command"] != "send_message"):
-        #     return False
+        if(message["data"]["command"] != "send_message"):
+            return False
 
-        # if(message["data"]["subcommand"] == "addr"):
-        #     pass
+        if(message["data"]["sub_command"] == "addr-request"):
+            username = self._main_window.wallet.storage.get('username', None)
+            username2 = message["data"]["payload"]
+
+            #in the demo all users can send all other users messages (friends can only send messages)
+            addr = self._main_window.wallet.get_unused_address(self._main_window.current_account) #TODO: We need to keep track of these
+            dapi.send_private_message(username, username2, "addr", addr)
+
+        if(message["data"]["sub_command"] == "addr"):
+            username2 = message["data"]["from_uid"] 
+            addr = message["data"]["payload"] 
+
+            if username2 in self._main_window.contacts:
+                _type, obj = self._main_window.contacts[username2]
+
+                if addr not in obj["addresses"]:
+                    obj["addresses"].append(addr)
+
+                print "1"
+                self._main_window.contacts[username2] = ('friend', obj)
+                print "2"
+                self._main_window.update_contacts_tab()
             
 
         return True
@@ -80,7 +100,6 @@ class DAPIWebSocket(object):
                 "command" : "get_profile",
                 "my_uid" : myusername,
                 "target_uid" : target_username, 
-                "signature" : "SIG",
                 "slot" : 1
             }
         }
@@ -117,7 +136,6 @@ class DAPIWebSocket(object):
                 "subcommand" : subcommand,
                 "my_uid" : myusername,
                 "target_uid" : target_username,
-                "signature" : "SIG",
                 "payload" : payload
             }
         }

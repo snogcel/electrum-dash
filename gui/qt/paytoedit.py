@@ -72,6 +72,9 @@ class PayToEdit(ScanQRTextEdit):
         self.setStyleSheet(util.RED_BG)
 
     def parse_address_and_amount(self, line):
+
+
+
         x, y = line.split(',')
         n = re.match('^SCRIPT\s+([0-9a-fA-F]+)$', x.strip())
         if n:
@@ -91,9 +94,25 @@ class PayToEdit(ScanQRTextEdit):
 
 
     def parse_address(self, line):
+        print "1 ---", line 
+
         r = line.strip()
         m = re.match('^'+RE_ALIAS+'$', r)
         address = m.group(2) if m else r
+
+        print "2 ---", line 
+
+        #pay to contact
+        if not bitcoin.is_address(line):
+            print "3 ---", line 
+            for key in sorted(self.win.contacts.keys()):
+                _type, obj = self.win.contacts[key]
+                print "OBJ2", key, _type, obj
+                if "stars" in obj and "addresses" in obj and "username" in obj:
+                    if obj["username"] == line: #pay to contact
+                        address = obj["addresses"].pop()
+                        print "FOUND", address
+
         assert bitcoin.is_address(address)
         return address
 
@@ -102,6 +121,7 @@ class PayToEdit(ScanQRTextEdit):
         self.errors = []
         if self.is_pr:
             return
+
         # filter out empty lines
         lines = filter( lambda x: x, self.lines())
         outputs = []
