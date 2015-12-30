@@ -35,5 +35,8 @@
     <file>icons/unpaid.png</file>
     <file>icons/unlock.png</file>
     <file>icons/zoom.png</file>
+    <file>icons/bg.png</file>
+    <file>icons/navlogo.png</file>
+
   </qresource>
 </RCC>

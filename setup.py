@@ -55,6 +55,8 @@ setup(
             'locale/*/LC_MESSAGES/electrum.mo',
         ],
         'electrum_dash_gui': [
+            "qt/themes/dash/name.cfg",
+            "qt/themes/dash/style.css",
             "qt/themes/cleanlook/name.cfg",
             "qt/themes/cleanlook/style.css",
             "qt/themes/sahara/name.cfg",
