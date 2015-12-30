@@ -39,6 +39,7 @@ from electrum_dash.util import print_error, print_msg
 from electrum_dash.plugins import run_hook, always_hook
 from electrum_dash import WalletStorage, Wallet
 from electrum_dash.bitcoin import MIN_RELAY_TX_FEE
+from electrum_dash.dapi import dapi
 
 try:
     import icons_rc
@@ -47,6 +48,7 @@ except Exception:
 
 from util import *
 from main_window import ElectrumWindow
+from electrum_dash.dapi import dapi
 
 
 class OpenFileEventFilter(QObject):
@@ -70,6 +72,8 @@ class ElectrumGui:
         self.config = config
         self.windows = []
         self.efilter = OpenFileEventFilter(self.windows)
+        self.dapi = dapi
+
         if app is None:
             self.app = QApplication(sys.argv)
         self.app.installEventFilter(self.efilter)
@@ -209,6 +213,9 @@ class ElectrumGui:
         # main window
         self.main_window = w = ElectrumWindow(self.config, self.network, self)
         self.current_window = self.main_window
+
+        # Decentralized API Access
+        self.dapi.set_main_window(self.main_window)
 
         #lite window
         self.init_lite()

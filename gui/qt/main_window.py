@@ -48,7 +48,7 @@ from electrum_dash import SimpleConfig, Wallet, WalletStorage
 from electrum_dash import Imported_Wallet
 from electrum_dash import paymentrequest
 from electrum_dash.contacts import Contacts
-from electrum_dash.dapi import DAPIWebSocket
+from electrum_dash.dapi import dapi
 
 from amountedit import AmountEdit, BTCAmountEdit, MyLineEdit, BTCkBEdit
 from network_dialog import NetworkDialog
@@ -106,14 +106,6 @@ expiration_values = [
     (_('1 week'), 7*24*60*60),
     (_('Never'), None)
 ]
-
-
-dapi = DAPIWebSocket()
-
-try:
-    dapi.start()
-except:
-    print "DAPI is not running"
 
 class ElectrumWindow(QMainWindow):
     labelsChanged = pyqtSignal()
@@ -1146,8 +1138,10 @@ class ElectrumWindow(QMainWindow):
         return key + '  <' + value + '>' if _type == 'address' else key
 
     def update_completions(self):
-        l = [self.get_contact_payto(key) for key in self.contacts.keys()]
-        self.completions.setStringList(l)
+        pass
+
+        # l = [self.get_contact_payto(key) for key in self.contacts.keys()]
+        # self.completions.setStringList(l)
 
     def protected(func):
         '''Password request wrapper.  The password is passed to the function
@@ -1463,7 +1457,7 @@ class ElectrumWindow(QMainWindow):
         return self.create_list_tab(l)
 
     def create_contacts_tab(self):
-        l = MyTreeWidget(self, self.create_contact_menu, [_('Key'), _('Value'), _('Type')], 1)
+        l = MyTreeWidget(self, self.create_contact_menu, [_('Username'), _('Description'), _('Type')], 1)
         l.setObjectName("contacts_container")
         self.contacts_list = l
         return self.create_list_tab(l)
@@ -1749,17 +1743,27 @@ class ElectrumWindow(QMainWindow):
 
 
     def update_contacts_tab(self):
+        print "3"
         l = self.contacts_list
         item = l.currentItem()
         current_key = item.data(0, Qt.UserRole).toString() if item else None
         l.clear()
+
+        print "4"
+
         for key in sorted(self.contacts.keys()):
-            _type, value = self.contacts[key]
-            item = QTreeWidgetItem([key, value, _type])
-            item.setData(0, Qt.UserRole, key)
-            l.addTopLevelItem(item)
-            if key == current_key:
-                l.setCurrentItem(item)
+            print "5"
+            _type, obj = self.contacts[key]
+            print "OBJ", key, _type, obj
+            if "stars" in obj and "addresses" in obj:
+                desc = "  Stars: " + str(obj["stars"]) + "   |   Addresses In Stock:   " + str(len(obj["addresses"]))
+                item = QTreeWidgetItem([obj["username"], desc, _type])
+                item.setData(0, Qt.UserRole, key)
+                l.addTopLevelItem(item)
+                if key == current_key:
+                    l.setCurrentItem(item)
+
+        print "6"
         run_hook('update_contacts_tab', l)
 
 
@@ -1890,23 +1894,32 @@ class ElectrumWindow(QMainWindow):
         if not d.exec_():
             return
 
-        username = self.wallet.storage.get('username',None)
+        username = self.wallet.storage.get('username', None)
         if username == None:
             print "Invalid username"
             return "Invalid Username"
 
         username2 = str(line1.text())
-        result = dapi.get_profile(username, username2)
 
-        if not result: result = "Nothing"
-        self.contacts[username] = ('address', result)
+        ### ------  ADD CONTACT (TEMPORARY) -------------------
+        obj = dapi.get_profile(username, username2)
 
-        dapi.send_private_message(username, username2, "addr", json.dumps(["Xaddr1", "Xaddr2"]))
+        if not obj:
+            print "Failed to get profile"
+            return
+        else:
+            self.contacts[username2] = ('friend', obj)
+        #### -------------------------
 
         self.update_contacts_tab()
         self.update_history_tab()
         self.update_completions()
         #self.tabs.setCurrentIndex(3)
+        
+        #this will eventually ask the user to sign a friend request message
+        #dapi.send_private_message(username, username2, "friend-request", username))
+        dapi.send_private_message(username, username2, "addr-request", username)
+
 
 
     @protected
