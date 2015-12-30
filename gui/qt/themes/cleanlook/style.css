@@ -75,6 +75,7 @@ MiniWindow QPushButton {
 /* Menu Bar */
 #main_window_container QMenuBar {
     color: #fff;
+        border-bottom: 2px solid red;
 
 }
 
@@ -87,10 +88,14 @@ MiniWindow QPushButton {
 /* Navigation Bar */
 #main_window_nav_bar {
     border:0;
+    border-bottom: 2px solid red;
+
 }
 #main_window_nav_bar QTabBar{
     color: #fff;
     border:0;
+    border-bottom: 2px solid red;
+
 
 }
 
@@ -102,6 +107,8 @@ MiniWindow QPushButton {
     padding-right:1em;
     padding-top:.25em;
     padding-bottom:.25em;
+    border-bottom: 2px solid red;
+
 }
 
 #main_window_nav_bar QTabBar::tab:first {
@@ -121,7 +128,8 @@ MiniWindow QPushButton {
 #history_container {
     border:0px;
     border-image: url(:/icons/bg.png) 0 0 0 0 stretch stretch;
-    border-top: 2px solid red;
+
+    
 
 
     /* background-color:#fff; */
@@ -130,34 +138,29 @@ MiniWindow QPushButton {
 /* Send Container */
 #send_container {
     border-image: url(:/icons/bg.png) 0 0 0 0 stretch stretch;
-    border-top: 2px solid red;
 
 }
 
 /* Receive Container */
 #receive_container {
     border-image: url(:/icons/bg.png) 0 0 0 0 stretch stretch;
-    border-top: 2px solid red;
 
 }
 
 /* Addressses Container */
 #addresses_container {
     /* background-color:#fff; */
-        border-top: 2px solid red;
 
 }
 
 /* Contacts Container */
 #contacts_container {
     /* background-color:#fff; */
-        border-top: 2px solid red;
 
 }
 
 /* Console Container */
 #console_container {
     /* background-color:#fff; */
-        border-top: 2px solid red;
 
 }
