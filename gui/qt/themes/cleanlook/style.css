@@ -164,3 +164,233 @@ MiniWindow QPushButton {
     /* background-color:#fff; */
 
 }
+
+/* from qt core */
+
+QMenuBar {
+    background-color:#fff;
+}
+
+QMenuBar::item {
+    background-color:#fff;
+}
+
+QMenuBar::item:selected {
+    background-color:#f8f6f6;
+}
+
+QMenu {
+    background-color:#f8f6f6;
+}
+
+QMenu::item {
+    color:#333;
+}
+
+QMenu::item:selected {
+    background-color:#f2f0f0;
+    color:#333;
+}
+
+QToolBar {
+    background-color:#3398CC;
+    border:0px solid #000;
+    padding:0;
+    margin:0;
+}
+
+QToolBar > QToolButton {
+    background-color:#3398CC;
+    border:0px solid #333;
+    min-height:2.5em;
+    padding: 0em 1em;
+    font-weight:bold;
+    color:#fff;
+}
+
+QToolBar > QToolButton:checked {
+    background-color:#fff;
+    color:#333;
+    font-weight:bold;
+}
+
+QMessageBox {
+    background-color:#F8F6F6;
+}
+
+/*******************************************************/
+
+QLabel { /* Base Text Size & Color */
+    font-size:12px;
+    color:#333333;
+}
+
+
+
+/*******************************************************/
+
+QPushButton { /* Global Button Style */
+    background-color:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: .01 #64ACD2, stop: .1 #3398CC, stop: .95 #3398CC, stop: 1 #1D80B5);
+    border:0;
+    border-radius:3px;
+    color:#ffffff;
+    font-size:12px;
+    font-weight:bold;
+    padding-left:25px;
+    padding-right:25px;
+    padding-top:5px;
+    padding-bottom:5px;
+    min-height:25px;
+}
+
+QPushButton:hover {
+    background-color:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: .01 #64ACD2, stop: .1 #46AADE, stop: .95 #46AADE, stop: 1 #1D80B5);
+}
+
+QPushButton:focus {
+    border:none;
+    outline:none;
+}
+
+QPushButton:pressed {
+    border:1px solid #333;
+}
+
+QComboBox { /* Dropdown Menus */
+    border:1px solid #82C3E6;
+    padding: 3px 5px 3px 5px;
+    background:#fcfcfc;
+    min-height:25px;
+    color:#818181;
+}
+
+QComboBox:checked {
+    background:#f2f2f2;
+}
+
+QComboBox:editable {
+    background: #3398CC;
+    color:#616161;
+    border:0px solid transparent;
+}
+
+QComboBox::drop-down {
+    width:25px;
+    border:0px;
+}
+
+QComboBox::down-arrow {
+    border-image: url(':/images/drkblue_downArrow') 0 0 0 0 stretch stretch;
+}
+
+QComboBox QListView {
+    background:#fff;
+    border:1px solid #333;
+    padding-right:1px;
+    padding-left:1px;
+}
+
+QComboBox QAbstractItemView::item { margin:4px; }
+
+QComboBox::item {
+    color:#818181;
+}
+
+QComboBox::item:alternate {
+    background:#fff;
+}
+
+QComboBox::item:selected {
+    border:0px solid transparent;
+    background:#f2f2f2;
+}
+
+QComboBox::indicator {
+    background-color:transparent;
+    selection-background-color:transparent;
+    color:transparent;
+    selection-color:transparent;
+}
+
+QAbstractSpinBox {
+    border:1px solid #82C3E6;
+    padding: 3px 5px 3px 5px;
+    background:#fcfcfc;
+    min-height:25px;
+    color:#818181;
+}
+
+QAbstractSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width:21px;
+    background:#fcfcfc;
+    border-left:0px;
+    border-right:1px solid #82C3E6;
+    border-top:1px solid #82C3E6;
+    border-bottom:0px;
+    padding-right:1px;
+    padding-left:5px;
+    padding-top:2px;
+}
+
+
+QAbstractSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width:21px;
+    background:#fcfcfc;
+    border-top:0px;
+    border-left:0px;
+    border-right:1px solid #82C3E6;
+    border-bottom:1px solid #82C3E6;
+    padding-right:1px;
+    padding-left:5px;
+    padding-bottom:2px;
+}
+
+/*******************************************************/
+
+QHeaderView { /* Table Header */
+    background-color:transparent;
+    border:0px;
+
+}
+
+QHeaderView::section { /* Table Header Sections */
+    qproperty-alignment:center;
+    background-color:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 0.25, stop: 0 #4c97bf, stop: 1 #56ABD8); 
+    color:#fff;
+    min-width: 50px;
+    min-height:25px;
+    font-weight:bold;
+    font-size:11px;
+    outline:0;
+    border:0px solid #fff;
+    border-right:1px solid #56ABD8;
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:2px;
+    padding-bottom:2px;
+}
+
+QHeaderView::section:last {
+    border-right: 0px solid #d7d7d7;
+}
+
+/**********************/
+QLineEdit  {
+    color: #333;
+    min-height:25px;
+    background: #fff;
+}
+ButtonsLineEdit {
+    color: #333;
+    min-height:25px;
+    background: #fff;
+}
+
+QLabel {
+    color: #333;
+    min-height:25px;
+}
