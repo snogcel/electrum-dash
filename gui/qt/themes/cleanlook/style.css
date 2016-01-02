@@ -66,6 +66,7 @@ MiniWindow QPushButton {
 /**********************/
 /* DASH Evolution CSS */
 /*
+0. OSX Reset
 1. Navigation Bar
 2. Editable Fields, Labels
 3. Containers
@@ -77,6 +78,14 @@ MiniWindow QPushButton {
 9. Dialog Boxes
 */
 /**********************/
+
+
+/**********************/
+/* 0. OSX Reset */
+
+QWidget { /* Set default style for QWidget, override in following statements */
+    border: 0;
+}
 
 
 /**********************/
@@ -140,7 +149,6 @@ QCheckBox:hover {
 
 QValidatedLineEdit, QLineEdit, PayToEdit { /* Text Entry Fields */
     border: 1px solid #82C3E6;
-    /* font-size:12px; */
     min-height:25px;
     outline:0;
     padding:3px;
@@ -158,7 +166,6 @@ QLabel {
     color: #333;
     min-height:25px;
 }
-
 
 
 /**********************/
@@ -554,7 +561,7 @@ QScrollBar:right-arrow {
 /* 8. Tree Widget */
 
 QTreeWidget {
-
+    border: 0;
 }
 
 QTreeWidget::item {
