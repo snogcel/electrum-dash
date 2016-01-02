@@ -141,7 +141,7 @@ class ElectrumWindow(QMainWindow):
         tabs.addTab(self.create_addresses_tab(), _('Addresses') )
         tabs.addTab(self.create_contacts_tab(), _('Contacts') )
         tabs.addTab(self.create_console_tab(), _('Console') )
-        tabs.setMinimumSize(600, 400)
+        tabs.setMinimumSize(833, 500)
         tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         tabs.setObjectName("main_window_nav_bar")
         self.setCentralWidget(tabs)
@@ -1813,6 +1813,7 @@ class ElectrumWindow(QMainWindow):
         qtVersion = qVersion()
 
         self.balance_label = QLabel("")
+        self.balance_label.setObjectName("main_window_balance")
         sb.addWidget(self.balance_label)
 
         from version_getter import UpdateLabel
