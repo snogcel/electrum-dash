@@ -4,6 +4,7 @@ import json
 import websocket
 import threading
 from time import sleep
+from electrum_dash.plugins import run_hook
 
 dapi = None
 
@@ -34,7 +35,9 @@ class DAPIWebSocket(object):
         if(obj["object"] == "dapi_message"):
             dapi.process_message(obj)
 
+        print "11"
         self._messages.append(message)
+        print "12"
 
     def send(self, json):
         self._ws.send(json)
@@ -59,12 +62,17 @@ class DAPIWebSocket(object):
         #     }
         # }
        
+        print message
 
         if(message["object"] != "dapi_message"):
             return False
 
+        print "100"
+
         if(message["data"]["command"] != "send_message"):
             return False
+
+        print "101"
 
         if(message["data"]["sub_command"] == "addr-request"):
             username = self._main_window.wallet.storage.get('username', None)
@@ -73,6 +81,8 @@ class DAPIWebSocket(object):
             #in the demo all users can send all other users messages (friends can only send messages)
             addr = self._main_window.wallet.get_unused_address(self._main_window.current_account) #TODO: We need to keep track of these
             dapi.send_private_message(username, username2, "addr", addr)
+
+        print "102"
 
         if(message["data"]["sub_command"] == "addr"):
             username2 = message["data"]["from_uid"] 
@@ -87,8 +97,47 @@ class DAPIWebSocket(object):
                 print "1"
                 self._main_window.contacts[username2] = ('friend', obj)
                 print "2"
-                self._main_window.update_contacts_tab()
-            
+                #self._main_window.update_contacts_tab()     
+                run_hook('contacts_tab_update', self._main_window.contacts)       
+                print "10"
+
+        print "103"
+
+        if(message["data"]["sub_command"] == "tx-desc"):
+            username2 = message["data"]["from_uid"] 
+            tx_desc = json.loads(message["data"]["payload"]) 
+
+            print tx_desc
+
+            if "tx" not in tx_desc or "desc" not in tx_desc:
+                print "Invalid tx description", tx_desc
+                return
+
+            print username2
+
+            if username2 in self._main_window.contacts:
+                _type, obj = self._main_window.contacts[username2]
+
+                if "txes" not in obj:
+                    obj["txes"] = []
+
+                if tx_desc['tx'] not in obj["txes"]:
+                    obj["txes"].append(tx_desc)
+
+                print "1"
+                self._main_window.contacts[username2] = ('friend', obj)
+                self._main_window.update_history_tab()
+                #run_hook('history_tab_update')
+                #run_hook('set_label', tx_desc["tx"], tx_desc["desc"], True)
+                #run_hook('contacts_tab_update', self._main_window.contacts)
+                print "2"
+                self._main_window.update_contacts_tab()            
+                print "10"
+            else:
+                print "missing user", username2
+
+
+
 
         return True
     

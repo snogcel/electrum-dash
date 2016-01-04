@@ -132,14 +132,16 @@ class ElectrumWindow(QMainWindow):
         self.decimal_point = config.get('decimal_point', 8)
         self.num_zeros     = int(config.get('num_zeros',0))
 
+        self.dapi = dapi
+
         self.completions = QStringListModel()
 
         self.tabs = tabs = QTabWidget(self)
         tabs.addTab(self.create_history_tab(), _('History') )
+        tabs.addTab(self.create_contacts_tab(), _('Friends') )
         tabs.addTab(self.create_send_tab(), _('Send') )
         tabs.addTab(self.create_receive_tab(), _('Receive') )
         tabs.addTab(self.create_addresses_tab(), _('Addresses') )
-        tabs.addTab(self.create_contacts_tab(), _('Contacts') )
         tabs.addTab(self.create_console_tab(), _('Console') )
         tabs.setMinimumSize(833, 500)
         tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -231,7 +233,8 @@ class ElectrumWindow(QMainWindow):
         self.dummy_address = a[0] if a else None
         self.accounts_expanded = self.wallet.storage.get('accounts_expanded',{})
         self.current_account = self.wallet.storage.get("current_account", None)
-        title = 'Electrum-DASH %s  -  %s' % (self.wallet.electrum_version, self.wallet.basename())
+        username = self.wallet.storage.get('username', None)
+        title = 'Electrum-DASH %s  -  %s - %s' % (self.wallet.electrum_version, self.wallet.basename(), username)
         if self.wallet.is_watching_only():
             title += ' [%s]' % (_('watching only'))
         self.setWindowTitle( title )
@@ -513,6 +516,8 @@ class ElectrumWindow(QMainWindow):
         return fileName
 
     def close(self):
+        print "CLOSE"
+        dapi.close()
         if self.qr_window:
             self.qr_window.close()
         QMainWindow.close(self)
@@ -619,6 +624,16 @@ class ElectrumWindow(QMainWindow):
         show_transaction(tx, self, tx_desc)
 
     def update_history_tab(self):
+
+        for username2 in self.contacts:
+            _type, obj = self.contacts[username2]
+
+            if "txes" not in obj:
+                obj["txes"] = []
+
+            for tx_desc in obj["txes"]:
+                self.wallet.set_label(self.wallet.get_matching_tx_hash(tx_desc["tx"]), tx_desc["desc"])
+            
         domain = self.wallet.get_account_addresses(self.current_account)
         h = self.wallet.get_history(domain)
         self.history_list.update(h)
@@ -1220,7 +1235,7 @@ class ElectrumWindow(QMainWindow):
                 return
 
         coins = self.get_coins()
-        return outputs, fee, label, coins
+        return outputs, fee, label, coins, self.payto_e.getPaidUsers()
 
 
     def do_send(self):
@@ -1229,7 +1244,7 @@ class ElectrumWindow(QMainWindow):
         r = self.read_send_tab()
         if not r:
             return
-        outputs, fee, tx_desc, coins = r
+        outputs, fee, tx_desc, coins, paid_users = r
         try:
             tx = self.wallet.make_unsigned_transaction(coins, outputs, self.config, fee)
             if not tx:
@@ -1262,6 +1277,14 @@ class ElectrumWindow(QMainWindow):
                         self.do_clear()
                     else:
                         self.broadcast_transaction(tx, tx_desc)
+                        
+                        print "len", len(tx_desc) 
+                        if(len(tx_desc) > 0):
+                            username = self.wallet.storage.get('username', None)
+                            for username2 in paid_users:
+                                dapi.send_private_message(username, username2, "tx-desc", json.dumps({'tx' : tx.hash()[:6], 'desc' : tx_desc}))
+                                print {'tx' : tx.hash()[:6], 'desc' : tx_desc}
+
             self.sign_tx(tx, sign_done)
 
 
@@ -1765,6 +1788,7 @@ class ElectrumWindow(QMainWindow):
 
         print "6"
         run_hook('update_contacts_tab', l)
+        print "7"
 
 
     def create_console_tab(self):
@@ -1920,7 +1944,6 @@ class ElectrumWindow(QMainWindow):
         #this will eventually ask the user to sign a friend request message
         #dapi.send_private_message(username, username2, "friend-request", username))
         dapi.send_private_message(username, username2, "addr-request", username)
-
 
 
     @protected

@@ -50,8 +50,12 @@ class PayToEdit(ScanQRTextEdit):
         self.scan_f = win.pay_to_URI
         self.update_size()
         self.payto_address = None
+        self.paid_users = []
 
         self.previous_payto = ''
+
+    def getPaidUsers(self):
+        return self.paid_users
 
     def lock_amount(self):
         self.amount_edit.setFrozen(True)
@@ -110,9 +114,13 @@ class PayToEdit(ScanQRTextEdit):
                 print "OBJ2", key, _type, obj
                 if "stars" in obj and "addresses" in obj and "username" in obj:
                     if obj["username"] == line: #pay to contact
-                        address = obj["addresses"].pop()
-                        print "FOUND", address
-
+                        if len(obj["addresses"]) > 0:
+                            address = obj["addresses"].pop()
+                            self.paid_users.append(obj["addresses"])
+                            print "FOUND", address
+                        else:
+                            print "OUT OF ADDRESSES"
+                
         assert bitcoin.is_address(address)
         return address
 

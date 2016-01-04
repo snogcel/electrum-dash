@@ -730,6 +730,7 @@ def get_parser(run_gui, run_daemon, run_cmdline):
     parser_gui.add_argument("-g", "--gui", dest="gui", help="select graphical user interface", choices=['qt', 'lite', 'gtk', 'text', 'stdio', 'jsonrpc'])
     parser_gui.add_argument("-m", action="store_true", dest="hide_gui", default=False, help="hide GUI on startup")
     parser_gui.add_argument("-L", "--lang", dest="language", default=None, help="default language used in GUI")
+    parser_gui.add_argument("-Z", "--electrum_path", dest="language", default=None, help="set electrum path")
     add_network_options(parser_gui)
     # daemon
     parser_daemon = subparsers.add_parser('daemon', parents=[parent_parser], help="Run Daemon")
@@ -741,6 +742,7 @@ def get_parser(run_gui, run_daemon, run_cmdline):
         cmd = known_commands[cmdname]
         p = subparsers.add_parser(cmdname, parents=[parent_parser], help=cmd.help, description=cmd.description)
         p.set_defaults(func=run_cmdline)
+        p.add_argument("-Z", "--electrum_path", dest="electrum_path", default=None, help="electrum_path")
         if cmd.requires_password:
             p.add_argument("-W", "--password", dest="password", default=None, help="password")
         for optname, default in zip(cmd.options, cmd.defaults):

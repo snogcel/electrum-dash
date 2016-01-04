@@ -48,7 +48,6 @@ except Exception:
 
 from util import *
 from main_window import ElectrumWindow
-from electrum_dash.dapi import dapi
 
 
 class OpenFileEventFilter(QObject):
@@ -72,7 +71,6 @@ class ElectrumGui:
         self.config = config
         self.windows = []
         self.efilter = OpenFileEventFilter(self.windows)
-        self.dapi = dapi
 
         if app is None:
             self.app = QApplication(sys.argv)
@@ -215,7 +213,7 @@ class ElectrumGui:
         self.current_window = self.main_window
 
         # Decentralized API Access
-        self.dapi.set_main_window(self.main_window)
+        self.main_window.dapi.set_main_window(self.main_window)
 
         #lite window
         self.init_lite()

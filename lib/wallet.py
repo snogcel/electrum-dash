@@ -117,7 +117,9 @@ class WalletStorage(object):
                 self.write()
 
     def write(self):
-        assert not threading.currentThread().isDaemon()
+        #TODO: this is temporary, see dapi.py, when it processes tx-desc messages it calls update_history_tab, which triggers this
+        #assert not threading.currentThread().isDaemon()
+
         temp_path = "%s.tmp.%s" % (self.path, os.getpid())
         s = json.dumps(self.data, indent=4, sort_keys=True)
         with open(temp_path, "w") as f:
@@ -203,6 +205,13 @@ class Abstract_Wallet(object):
             if self.txi.get(tx_hash) is None and self.txo.get(tx_hash) is None and (tx_hash not in self.pruned_txo.values()):
                 print_error("removing unreferenced tx", tx_hash)
                 self.transactions.pop(tx_hash)
+
+    def get_matching_tx_hash(self, short_tx):
+        tx_list = self.storage.get('transactions', {})
+        for tx_hash, raw in tx_list.items():
+            if tx_hash[:len(short_tx)] == short_tx:
+                return tx_hash
+        return None
 
     @profiler
     def save_transactions(self):
@@ -352,6 +361,7 @@ class Abstract_Wallet(object):
         self.save_accounts()
 
     def set_label(self, name, text = None):
+        print name, text
         changed = False
         old_text = self.labels.get(name)
         if text:
@@ -852,6 +862,7 @@ class Abstract_Wallet(object):
 
     def get_label(self, tx_hash):
         label = self.labels.get(tx_hash)
+
         is_default = (label == '') or (label is None)
         if is_default:
             label = self.get_default_label(tx_hash)

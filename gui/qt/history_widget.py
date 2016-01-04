@@ -74,7 +74,6 @@ class HistoryWidget(MyTreeWidget):
 
         run_hook('history_tab_update')
 
-
     def create_menu(self, position):
         self.selectedIndexes()
         item = self.currentItem()

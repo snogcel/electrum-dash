@@ -51,6 +51,7 @@ class SimpleConfig(object):
         else:
             self.user_dir = read_user_dir_function
 
+
         # The command line options
         self.cmdline_options = deepcopy(options)
 
@@ -74,7 +75,11 @@ class SimpleConfig(object):
         # Otherwise use the user's default data directory.
         path = self.get('electrum_path')
         if path is None:
+            path = self.cmdline_options.get('electrum_path', None)
+        if path is None:
             path = self.user_dir()
+
+        print path
 
         # Make directory if it does not yet exist.
         if not os.path.exists(path):
