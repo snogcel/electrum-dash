@@ -1480,10 +1480,10 @@ class ElectrumWindow(QMainWindow):
         return self.create_list_tab(l)
 
     def create_contacts_tab(self):
-        l = MyTreeWidget(self, self.create_contact_menu, [_('Username'), _('Description'), _('Type')], 1)
+        from friend_widget import FriendWidget
+        self.contacts_list = l = FriendWidget(self)
         l.setObjectName("contacts_container")
-        self.contacts_list = l
-        return self.create_list_tab(l)
+        return l
 
     def update_invoices_list(self):
         inv_list = self.invoices.sorted_list()
@@ -1766,30 +1766,25 @@ class ElectrumWindow(QMainWindow):
 
 
     def update_contacts_tab(self):
-        print "3"
         l = self.contacts_list
         item = l.currentItem()
         current_key = item.data(0, Qt.UserRole).toString() if item else None
         l.clear()
-
-        print "4"
-
+        
+        items = []
         for key in sorted(self.contacts.keys()):
-            print "5"
             _type, obj = self.contacts[key]
-            print "OBJ", key, _type, obj
             if "stars" in obj and "addresses" in obj:
-                desc = "  Stars: " + str(obj["stars"]) + "   |   Addresses In Stock:   " + str(len(obj["addresses"]))
-                item = QTreeWidgetItem([obj["username"], desc, _type])
-                item.setData(0, Qt.UserRole, key)
-                l.addTopLevelItem(item)
                 if key == current_key:
-                    l.setCurrentItem(item)
+                    obj['current'] = True
+                else:
+                    obj['current'] = False    
 
-        print "6"
+                items.append(obj)
+
+        self.contacts_list.update(items)
+
         run_hook('update_contacts_tab', l)
-        print "7"
-
 
     def create_console_tab(self):
         from console import Console
