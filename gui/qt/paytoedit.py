@@ -116,10 +116,11 @@ class PayToEdit(ScanQRTextEdit):
                     if obj["username"] == line: #pay to contact
                         if len(obj["addresses"]) > 0:
                             address = obj["addresses"].pop()
-                            self.paid_users.append(obj["addresses"])
+                            self.paid_users.append(obj["username"])
                             print "FOUND", address
                         else:
-                            print "OUT OF ADDRESSES"
+                            self.errors.append((i, obj["username"] + ": Out Of Addresses"))
+                            print obj["username"], ": OUT OF ADDRESSES"
                 
         assert bitcoin.is_address(address)
         return address

@@ -21,7 +21,6 @@ import webbrowser
 
 from util import *
 from electrum_dash.i18n import _
-from electrum_dash.util import block_explorer_URL, format_satoshis, format_time
 from electrum_dash.plugins import run_hook
 
 
@@ -67,7 +66,7 @@ class FriendWidget(MyTreeWidget):
         item = self.currentItem()
         if not item:
             return
-            
+
         menu = QMenu()
         menu.addAction(_("Open Chat"), lambda: self.parent.app.clipboard().setText(tx_hash))
         menu.addAction(_("Unfriend"), lambda: self.parent.show_transaction(self.wallet.transactions.get(tx_hash)))

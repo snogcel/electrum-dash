@@ -54,7 +54,7 @@ class DAPIWebSocket(object):
         #     "object" : "dapi_command",
         #     "data" : {
         #         "command" = "send_message",
-        #         "subcommand" = "(addr,cmd2,cmd3)",
+        #         "sub_command" = "(addr,cmd2,cmd3)",
         #         "my_uid" = UID,
         #         "target_uid" = UID, 
         #         "signature" = "",
@@ -94,14 +94,9 @@ class DAPIWebSocket(object):
                 if addr not in obj["addresses"]:
                     obj["addresses"].append(addr)
 
-                print "1"
                 self._main_window.contacts[username2] = ('friend', obj)
-                print "2"
                 #self._main_window.update_contacts_tab()     
                 run_hook('contacts_tab_update', self._main_window.contacts)       
-                print "10"
-
-        print "103"
 
         if(message["data"]["sub_command"] == "tx-desc"):
             username2 = message["data"]["from_uid"] 
@@ -123,24 +118,62 @@ class DAPIWebSocket(object):
 
                 if tx_desc['tx'] not in obj["txes"]:
                     obj["txes"].append(tx_desc)
+                else:
+                    print "failed to append"
 
                 print "1"
                 self._main_window.contacts[username2] = ('friend', obj)
                 self._main_window.update_history_tab()
                 #run_hook('history_tab_update')
                 #run_hook('set_label', tx_desc["tx"], tx_desc["desc"], True)
-                #run_hook('contacts_tab_update', self._main_window.contacts)
                 print "2"
-                self._main_window.update_contacts_tab()            
                 print "10"
+                self._main_window.update_contacts_tab()            
             else:
                 print "missing user", username2
 
+        if(message["data"]["sub_command"] == "payment-request"):
+            username2 = message["data"]["from_uid"] 
+            tx_desc = json.loads(message["data"]["payload"]) 
 
-
+            if self._main_window.payment_request(username2, tx_desc):
+                pass #should auto pay
 
         return True
     
+    def send_invitation(self, myusername, target_email):        
+        ex = {   
+            "object" : "dapi_command",
+            "data" : {
+                "command" : "send_invitaiton",
+                "my_uid" : myusername,
+                "target_email" : target_email
+            }
+        }
+
+        # send a message to DAPI
+        s = json.dumps(ex)
+        self.send(s)
+
+        # wait for the result
+        count = 0
+        result = False
+        while True:
+            result = self.receive()
+            if result:
+                if(result.find('"dapi_result"') > 0):
+                    obj = json.loads(result)
+                    return obj["data"]["data"]
+            
+            sleep(.1)
+            count += 1
+
+            if count > 30:
+                print "dapi.send_invitaiton timeout"
+                return None
+
+        print "dapi.send_invitaiton error"
+        return None
 
     def get_profile(self, myusername, target_username):        
         ex = {   
@@ -177,12 +210,12 @@ class DAPIWebSocket(object):
         print "dapi.get_profile error"
         return None
 
-    def send_private_message(self, myusername, target_username, subcommand, payload):
+    def send_private_message(self, myusername, target_username, sub_command, payload):
         ex = {   
             "object" : "dapi_command",
             "data" : {
                 "command" : "send_message",
-                "subcommand" : subcommand,
+                "sub_command" : sub_command,
                 "my_uid" : myusername,
                 "target_uid" : target_username,
                 "payload" : payload

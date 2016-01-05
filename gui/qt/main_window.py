@@ -407,7 +407,6 @@ class ElectrumWindow(QMainWindow):
         self.update_recently_visited()
 
         wallet_menu = menubar.addMenu(_("&Wallet"))
-        wallet_menu.addAction(_("&New contact"), self.new_contact_dialog)
         self.new_account_menu = wallet_menu.addAction(_("&New account"), self.new_account_dialog)
 
         wallet_menu.addSeparator()
@@ -427,6 +426,13 @@ class ElectrumWindow(QMainWindow):
         self.export_menu = self.private_keys_menu.addAction(_("&Export"), self.export_privkeys_dialog)
         wallet_menu.addAction(_("&Export History"), self.export_history_dialog)
         wallet_menu.addAction(_("Search"), self.toggle_search).setShortcut(QKeySequence("Ctrl+S"))
+
+        evo_menu = menubar.addMenu(_("&Evolution"))
+
+        # All of the future funcitonality of Dash Evolution
+        evo_menu.addAction(_("Send Friend Request"), self.send_friend_request)
+        evo_menu.addAction(_("Send Evolution Invitation"), self.send_invitation)
+        evo_menu.addAction(_("Search Fiat Converters"), lambda: webbrowser.open("https://www.dashevolution.com/search/fiat_converters"))
 
         tools_menu = menubar.addMenu(_("&Tools"))
 
@@ -632,7 +638,7 @@ class ElectrumWindow(QMainWindow):
                 obj["txes"] = []
 
             for tx_desc in obj["txes"]:
-                self.wallet.set_label(self.wallet.get_matching_tx_hash(tx_desc["tx"]), tx_desc["desc"])
+                self.wallet.set_label(tx_desc["tx"], tx_desc["username"] + " -> " + tx_desc["desc"])
             
         domain = self.wallet.get_account_addresses(self.current_account)
         h = self.wallet.get_history(domain)
@@ -1278,12 +1284,14 @@ class ElectrumWindow(QMainWindow):
                     else:
                         self.broadcast_transaction(tx, tx_desc)
                         
-                        print "len", len(tx_desc) 
                         if(len(tx_desc) > 0):
                             username = self.wallet.storage.get('username', None)
+                            print paid_users
                             for username2 in paid_users:
-                                dapi.send_private_message(username, username2, "tx-desc", json.dumps({'tx' : tx.hash()[:6], 'desc' : tx_desc}))
-                                print {'tx' : tx.hash()[:6], 'desc' : tx_desc}
+                                if not dapi.send_private_message(username2, username, "tx-desc", json.dumps({'username' : username, 'tx' : tx.hash(), 'desc' : tx_desc})):
+                                    QMessageBox.warning(self, _('Error'), _("Couldn't send tx-desc private message to user: ") + username, _('OK'))
+
+                                print {'tx' : tx.hash(), 'desc' : tx_desc}
 
             self.sign_tx(tx, sign_done)
 
@@ -1898,14 +1906,16 @@ class ElectrumWindow(QMainWindow):
         elif i == 4:
             self.contacts_list.filter(t, [0, 1])  # Key, Value
 
-    def new_contact_dialog(self):
+    def send_friend_request(self):
         d = QDialog(self)
-        d.setWindowTitle(_("Send Invite"))
+        d.setMinimumSize(400, 200)
+        d.setModal(1)
+        d.setWindowTitle(_("Send Friend Request"))
         vbox = QVBoxLayout(d)
-        vbox.addWidget(QLabel(_('Send Invite To') + ':'))
+        vbox.addWidget(QLabel(_('Send Friend Request') + ':'))
         grid = QGridLayout()
         line1 = QLineEdit()
-        grid.addWidget(QLabel(_("Name")), 1, 0)
+        grid.addWidget(QLabel(_("Username")), 1, 0)
         grid.addWidget(line1, 1, 1)
 
         vbox.addLayout(grid)
@@ -1916,8 +1926,8 @@ class ElectrumWindow(QMainWindow):
 
         username = self.wallet.storage.get('username', None)
         if username == None:
-            print "Invalid username"
-            return "Invalid Username"
+            QMessageBox.warning(self, _('Error'), str("Invalid Username"), _('OK'))
+            return;
 
         username2 = str(line1.text())
 
@@ -1925,7 +1935,7 @@ class ElectrumWindow(QMainWindow):
         obj = dapi.get_profile(username, username2)
 
         if not obj:
-            print "Failed to get profile"
+            QMessageBox.warning(self, _('Error'), str("Failed to get profile"), _('OK'))
             return
         else:
             self.contacts[username2] = ('friend', obj)
@@ -1940,6 +1950,48 @@ class ElectrumWindow(QMainWindow):
         #dapi.send_private_message(username, username2, "friend-request", username))
         dapi.send_private_message(username, username2, "addr-request", username)
 
+        QMessageBox.information(self, _('Information'), str("Success!"), _('OK'))
+
+    def send_invitation(self):
+        d = QDialog(self)
+        d.setMinimumSize(400, 200)
+        d.setModal(1)
+        d.setWindowTitle(_("Send Evolution Invitation"))
+        vbox = QVBoxLayout(d)
+        vbox.addWidget(QLabel(_('Send Invite') + ':'))
+        grid = QGridLayout()
+        line1 = QLineEdit()
+        grid.addWidget(QLabel(_("Email")), 1, 0)
+        grid.addWidget(line1, 1, 1)
+
+        vbox.addLayout(grid)
+        vbox.addLayout(Buttons(CancelButton(d), OkButton(d)))
+
+        if not d.exec_():
+            return
+
+        username = self.wallet.storage.get('username', None)
+        if username == None:
+            QMessageBox.warning(self, _('Error'), str("Invalid Username"), _('OK'))
+            return
+
+        email = str(line1.text())
+
+        ### ------  ADD CONTACT (TEMPORARY) -------------------
+        obj = dapi.send_invitation(username, email)
+
+        if not obj:
+            QMessageBox.warning(self, _('Error'), str("Failed to send invitation"), _('OK'))
+            return
+
+        QMessageBox.information(self, _('Information'), str("Success!"), _('OK'))
+
+    def payment_request(self, obj):
+        confirm_amount = obj['payment_amount']
+        o = '\n'.join(map(lambda x:x[1], outputs))
+        if self.question(_("send %(amount)s to %(address)s?")%{ 'amount' : self.format_amount(amount) + ' '+ self.base_unit(), 'address' : o}):
+            return True
+        return False
 
     @protected
     def new_account_dialog(self, password):
