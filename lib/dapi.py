@@ -55,13 +55,18 @@ class DAPIWebSocket(object):
         #     "data" : {
         #         "command" = "send_message",
         #         "sub_command" = "(addr,cmd2,cmd3)",
-        #         "my_uid" = UID,
-        #         "target_uid" = UID, 
+        #         "from_uid" = UID,
+        #         "to_uid" = UID, 
         #         "signature" = "",
         #         "payload" = ENCRYPTED
         #     }
         # }
        
+        # all messages are broadcast to all users currently, this filters only the ones to us
+        username = self._main_window.wallet.storage.get('username', None)
+        if(message["data"]["to_uid"] != username):
+            print "Skipping message to", message["data"]["to_uid"]
+
         print message
 
         if(message["object"] != "dapi_message"):
@@ -79,8 +84,12 @@ class DAPIWebSocket(object):
             username2 = message["data"]["payload"]
 
             #in the demo all users can send all other users messages (friends can only send messages)
-            addr = self._main_window.wallet.get_unused_address(self._main_window.current_account) #TODO: We need to keep track of these
-            dapi.send_private_message(username, username2, "addr", addr)
+            #TODO: We need to keep track of these
+            dapi.send_private_message(username, username2, "addr", self._main_window.wallet.get_unused_address(self._main_window.current_account, 0))
+            dapi.send_private_message(username, username2, "addr", self._main_window.wallet.get_unused_address(self._main_window.current_account, 1))
+            dapi.send_private_message(username, username2, "addr", self._main_window.wallet.get_unused_address(self._main_window.current_account, 2))
+            dapi.send_private_message(username, username2, "addr", self._main_window.wallet.get_unused_address(self._main_window.current_account, 3))
+            dapi.send_private_message(username, username2, "addr", self._main_window.wallet.get_unused_address(self._main_window.current_account, 4))
 
         print "102"
 
@@ -123,12 +132,12 @@ class DAPIWebSocket(object):
 
                 print "1"
                 self._main_window.contacts[username2] = ('friend', obj)
-                self._main_window.update_history_tab()
-                #run_hook('history_tab_update')
-                #run_hook('set_label', tx_desc["tx"], tx_desc["desc"], True)
+                #self._main_window.update_history_tab()
+                run_hook('history_tab_update')
+                run_hook('set_label', tx_desc["tx"], tx_desc["desc"], True)
                 print "2"
                 print "10"
-                self._main_window.update_contacts_tab()            
+                #self._main_window.update_contacts_tab()            
             else:
                 print "missing user", username2
 
@@ -146,7 +155,7 @@ class DAPIWebSocket(object):
             "object" : "dapi_command",
             "data" : {
                 "command" : "send_invitaiton",
-                "my_uid" : myusername,
+                "from_uid" : myusername,
                 "target_email" : target_email
             }
         }
@@ -180,8 +189,8 @@ class DAPIWebSocket(object):
             "object" : "dapi_command",
             "data" : {
                 "command" : "get_profile",
-                "my_uid" : myusername,
-                "target_uid" : target_username, 
+                "from_uid" : myusername,
+                "to_uid" : target_username, 
                 "slot" : 1
             }
         }
@@ -216,8 +225,8 @@ class DAPIWebSocket(object):
             "data" : {
                 "command" : "send_message",
                 "sub_command" : sub_command,
-                "my_uid" : myusername,
-                "target_uid" : target_username,
+                "from_uid" : myusername,
+                "to_uid" : target_username,
                 "payload" : payload
             }
         }

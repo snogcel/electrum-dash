@@ -613,6 +613,7 @@ class ElectrumWindow(QMainWindow):
         self.update_contacts_tab()
         self.update_completions()
         self.update_invoices_list()
+        self.check_contact_addresses()
 
     def create_history_tab(self):
         from history_widget import HistoryWidget
@@ -628,6 +629,17 @@ class ElectrumWindow(QMainWindow):
     def show_transaction(self, tx, tx_desc = None):
         '''tx_desc is set only for txs created in the Send tab'''
         show_transaction(tx, self, tx_desc)
+
+    def check_contact_addresses(self):
+        username = self.wallet.storage.get('username', None)
+        for username2 in self.contacts:
+            _type, obj = self.contacts[username2]
+
+            if "addresses" not in obj:
+                obj["addresses"] = []
+
+            if len(obj["addresses"]) < 5:
+                dapi.send_private_message(username, username2, "addr-request", username2)
 
     def update_history_tab(self):
 
