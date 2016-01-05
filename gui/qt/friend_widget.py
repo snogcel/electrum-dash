@@ -31,6 +31,8 @@ class FriendWidget(MyTreeWidget):
         MyTreeWidget.__init__(self, parent, self.create_menu, [_('Stars'), _('Username') , _('Addresses'), _('TLIP Support')], 2)
         self.config = self.parent.config
         self.setSortingEnabled(False)
+        self.header().setResizeMode(1,2)
+        self.header().setResizeMode(3,2)
 
     def update(self, items):
         self.clear()
@@ -43,10 +45,10 @@ class FriendWidget(MyTreeWidget):
         for i in items:
             icon = QIcon(":icons/" + str(i["stars"]) + "_stars.png")
 
-            item = QTreeWidgetItem( [ i["username"], '', str(len(i["addresses"])), "101,102,103"] )
+            item = QTreeWidgetItem( [ '', i["username"], str(len(i["addresses"])), "101,102,103"] )
+            item.setFont(1, QFont(MONOSPACE_FONT))
             item.setFont(2, QFont(MONOSPACE_FONT))
             item.setFont(3, QFont(MONOSPACE_FONT))
-            item.setFont(4, QFont(MONOSPACE_FONT))
 
             if len(i["addresses"]) < 1:
                 item.setForeground(3, QBrush(QColor("#BC1E1E")))
