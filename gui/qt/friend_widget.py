@@ -32,6 +32,8 @@ class FriendWidget(MyTreeWidget):
         self.setSortingEnabled(False)
         self.header().setResizeMode(1,2)
         self.header().setResizeMode(3,2)
+        self.setIconSize(QSize(115,20))
+        self.setIndentation(5)
 
     def update(self, items):
         self.clear()
