@@ -467,7 +467,7 @@ QHeaderView::section { /* Table Header Sections */
 }
 
 #contacts_container QHeaderView::section:first {
-    padding-left:40px;
+    padding-left:50px;
     padding-right:40px;
 }
 
@@ -570,6 +570,7 @@ QScrollBar:right-arrow {
 
 QTreeWidget {
     border: 0;
+    background-color:rgba(255,255,255,128);
 }
 
 QTreeWidget::item {
