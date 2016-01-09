@@ -144,6 +144,7 @@ class BasePlugin:
             if k in hook_names:
                 l = hooks.get(k, [])
                 l.append((self, getattr(self, k)))
+                print k, l
                 hooks[k] = l
 
     def close(self):

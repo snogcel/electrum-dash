@@ -39,7 +39,7 @@ from electrum_dash.util import print_error, print_msg
 from electrum_dash.plugins import run_hook, always_hook
 from electrum_dash import WalletStorage, Wallet
 from electrum_dash.bitcoin import MIN_RELAY_TX_FEE
-from electrum_dash.dapi import dapi
+#from electrum_dash.dapi import dapi
 
 try:
     import icons_rc

@@ -1,3 +1,4 @@
+build-icons.sh
 ####-*.patch
 .DS_Store
 gui/icons_rc.py
