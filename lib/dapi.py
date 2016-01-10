@@ -33,7 +33,7 @@ def on_close(ws):
 class DAPIWebSocket(object):    
     def start(self):
         websocket.enableTrace(True)
-        self._ws = websocket.WebSocketApp("ws://localhost:5000/", on_message = on_message, on_close = on_close)
+        self._ws = websocket.WebSocketApp("ws://dapi.dash.org:5000/", on_message = on_message, on_close = on_close)
         self._wst = threading.Thread(target=self._ws.run_forever)
         self._wst.daemon = True
         self._wst.start()
