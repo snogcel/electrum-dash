@@ -33,7 +33,7 @@ def on_close(ws):
 class DAPIWebSocket(object):    
     def start(self):
         websocket.enableTrace(True)
-        self._ws = websocket.WebSocketApp("ws://dapi.dash.org:5000/", on_message = on_message, on_close = on_close)
+        self._ws = websocket.WebSocketApp("ws://www.dash.org:5000/", on_message = on_message, on_close = on_close)
         self._wst = threading.Thread(target=self._ws.run_forever)
         self._wst.daemon = True
         self._wst.start()
@@ -51,7 +51,13 @@ class DAPIWebSocket(object):
         self._messages.append(message)
 
     def send(self, json):
-        self._ws.send(json)
+        try:
+            self._ws.send(json)
+        except:
+            print "DAPI connection was closed, restarting"
+            self.start()
+            sleep(5)
+            self._ws.send(json)
 
     def receive(self):
         if len(self._messages) > 0: return self._messages.pop()
@@ -73,11 +79,14 @@ class DAPIWebSocket(object):
         #     }
         # }
 
+        print "dapi, process new message", message
+
         #####################################################################################       
         # all messages are broadcast to all users currently, this filters only the ones to us
         username = self._main_window.wallet.storage.get('username', None)
         if(message["data"]["to_uid"] != username):
             print "Skipping message to", message["data"]["to_uid"]
+            return False
 
         #####################################################################################
         # we only want to filter pms here
@@ -115,7 +124,29 @@ class DAPIWebSocket(object):
 
                 self._main_window.contacts[username2] = ('friend', obj)
                 #self._main_window.update_contacts_tab()     
-                run_hook('contacts_tab_update', self._main_window.contacts)       
+                #run_hook('contacts_tab_update')
+                #run_hook('contacts_tab_update', self._main_window.contacts)       
+
+                # l = self._main_window.contacts_list
+                # item = l.currentItem()
+                # current_key = item.data(0, Qt.UserRole).toString() if item else None
+                # l.clear()
+                
+                # items = []
+                # for key in sorted(self._main_window.contacts.keys()):
+                #     _type, obj = self._main_window.contacts[key]
+                #     if "stars" in obj and "addresses" in obj:
+                #         if key == current_key:
+                #             obj['current'] = True
+                #         else:
+                #             obj['current'] = False    
+
+                #         items.append(obj)
+
+                # self._main_window.contacts_list.update(items)
+
+                # run_hook('update_contacts_tab', l)
+
 
         #####################################################################################
         # Tx-Desc : A friend sent us a transaction description, this will be displayed in the UI

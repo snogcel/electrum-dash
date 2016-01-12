@@ -135,7 +135,7 @@ class ElectrumWindow(QMainWindow):
 
         # Decentralized API Access
         self.dapi = dapi
-        self._dapi_payment_request = False
+        self._dapi_payment_request_username2 = ""
         #self.dapi.set_main_window(self)
 
         self.completions = QStringListModel()
@@ -645,17 +645,18 @@ class ElectrumWindow(QMainWindow):
         show_transaction(tx, self, tx_desc)
 
     def check_contact_addresses(self):
-        pass
 
-        # username = self.wallet.storage.get('username', None)
-        # for username2 in self.contacts:
-        #     _type, obj = self.contacts[username2]
+        self.update_contacts_tab()
 
-        #     if "addresses" not in obj:
-        #         obj["addresses"] = []
+        username = self.wallet.storage.get('username', None)
+        for username2 in self.contacts:
+            _type, obj = self.contacts[username2]
 
-        #     if len(obj["addresses"]) < 5:
-        #         dapi.send_private_message(username, username2, "addr-request", username2)
+            if "addresses" not in obj:
+                obj["addresses"] = []
+
+            if len(obj["addresses"]) < 3:
+                dapi.send_private_message(username, username2, "addr-request", username2)
 
     def update_history_tab(self):
 
@@ -1294,6 +1295,13 @@ class ElectrumWindow(QMainWindow):
 
         if not self.config.get('can_edit_fees', False):
             if not self.question(_("A fee of %(fee)s will be added to this transaction.\nProceed?")%{ 'fee' : self.format_amount(fee) + ' '+ self.base_unit()}):
+
+                if self._dapi_payment_request_username2 != "":
+                    print "sending failure message"
+                    username = self.wallet.storage.get('username', None)
+                    dapi.send_private_message(username, self._dapi_payment_request_username2, "payment-request-result", json.dumps({"status" : "failure", "tx" : None}))
+                    self._dapi_payment_request_username2 = ""
+
                 return
         else:
             confirm_fee = self.config.get('confirm_fee', 100000)
@@ -1310,8 +1318,8 @@ class ElectrumWindow(QMainWindow):
                         self.show_transaction(tx)
                         self.do_clear()
 
-                        if self._dapi_payment_request:
-                            dapi.send_private_message(username, username2, "payment-request-result", json.dumps({"status" : "failure", "tx" : None}))
+                        if self._dapi_payment_request_username2 != "":
+                            dapi.send_private_message(username, self._dapi_payment_request_username2, "payment-request-result", json.dumps({"status" : "failure", "tx" : None}))
                     else:
                         self.broadcast_transaction(tx, tx_desc)
                         self._last_tx = tx.hash()
@@ -1321,15 +1329,13 @@ class ElectrumWindow(QMainWindow):
                         
                         if(len(tx_desc) > 0):
                             for username2 in paid_users:
-                                if not dapi.send_private_message(username2, username, "tx-desc", json.dumps({'username' : username, 'tx' : tx.hash(), 'desc' : tx_desc})):
+                                if not dapi.send_private_message(username, username2, "tx-desc", json.dumps({'username' : username, 'tx' : tx.hash(), 'desc' : tx_desc})):
                                     QMessageBox.warning(self, _('Error'), _("Couldn't send tx-desc private message to user: ") + username, _('OK'))
 
-                                    username = self.wallet.storage.get('username', None)
-
                         #TODO: Add after_send hook?
-                        if self._dapi_payment_request:
-                            dapi.send_private_message(username, username2, "payment-request-result", json.dumps({"status" : "success", "tx" : self._last_tx}))
-                            self._dapi_payment_request = False
+                        if self._dapi_payment_request_username2 != "":
+                            dapi.send_private_message(username, self._dapi_payment_request_username2, "payment-request-result", json.dumps({"status" : "success", "tx" : tx.hash()}))
+                            self._dapi_payment_request_username2 = ""
 
             self.sign_tx(tx, sign_done)
 
@@ -2038,10 +2044,11 @@ class ElectrumWindow(QMainWindow):
                 self.amount_e.setAmount(amount)
                 self.amount_e.textEdited.emit("")
 
-            self._dapi_payment_request = True
+            self._dapi_payment_request_username2 = username2
             self.do_send()
 
         else:
+            username = self.wallet.storage.get('username', None)
             dapi.send_private_message(username, username2, "payment-request-result", json.dumps({"status" : "failure", "tx" : None}))
 
 
