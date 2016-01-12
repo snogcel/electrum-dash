@@ -645,10 +645,8 @@ class ElectrumWindow(QMainWindow):
         show_transaction(tx, self, tx_desc)
 
     def check_contact_addresses(self):
-
         self.update_contacts_tab()
 
-        username = self.wallet.storage.get('username', None)
         for username2 in self.contacts:
             _type, obj = self.contacts[username2]
 
@@ -656,7 +654,13 @@ class ElectrumWindow(QMainWindow):
                 obj["addresses"] = []
 
             if len(obj["addresses"]) < 3:
-                dapi.send_private_message(username, username2, "addr-request", username2)
+                self.request_more_addresses(username2)
+
+    def request_more_addresses(self, username2):
+        username = self.wallet.storage.get('username', None)
+
+        print username, username2
+        dapi.send_private_message(username, username2, "addr-request", username2)
 
     def update_history_tab(self):
 

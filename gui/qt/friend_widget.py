@@ -70,8 +70,6 @@ class FriendWidget(MyTreeWidget):
             return
 
         menu = QMenu()
-        menu.addAction(_("Open Chat"), lambda: self.parent.app.clipboard().setText(tx_hash))
-        menu.addAction(_("Unfriend"), lambda: self.parent.show_transaction(self.wallet.transactions.get(tx_hash)))
-        menu.addAction(_("Create Multisig Account"), lambda: self.edit_label(item))
+        menu.addAction(_("Request More Addresses"), lambda: self.parent.request_more_addresses(str(item.data(1,0).toString())))
         menu.exec_(self.viewport().mapToGlobal(position))
 

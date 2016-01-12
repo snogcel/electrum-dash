@@ -100,7 +100,7 @@ class DAPIWebSocket(object):
         # Address-Request : A friend is asking for us to top-off their address list
         if(message["data"]["sub_command"] == "addr-request"):
             username = self._main_window.wallet.storage.get('username', None)
-            username2 = message["data"]["payload"]
+            username2 = message["data"]["from_uid"]
 
             #in the demo all users can send all other users messages (friends can only send messages)
             #TODO: We need to keep track of these
