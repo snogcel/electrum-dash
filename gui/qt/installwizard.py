@@ -145,6 +145,10 @@ class InstallWizard(QDialog):
 
         username = str(line1.text())
 
+        if len(username) <= 3:
+            QMessageBox.warning(None, _('Error'), _('Incorrect Dash Evolution Username'), _('OK'))
+            return None, None, None
+
         action = 'create' if b1.isChecked() else 'restore'
         wallet_type = self.wallet_types[group2.checkedId()][0]
         return username, action, wallet_type
