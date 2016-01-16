@@ -1,5 +1,6 @@
 from websocket import create_connection
 import json
+from random import randint
 
 # Let's do some dep checking and handle missing ones gracefully
 try:
@@ -211,6 +212,7 @@ class DAPIWebSocket(object):
         ex = {   
             "object" : "dapi_command",
             "data" : {
+                "id" : str(randint(1000000,9000000)),
                 "command" : "send_invitaiton",
                 "from_uid" : myusername,
                 "target_email" : target_email
@@ -245,6 +247,7 @@ class DAPIWebSocket(object):
         ex = {   
             "object" : "dapi_command",
             "data" : {
+                "id" : str(randint(1000000,9000000)),
                 "command" : "get_profile",
                 "from_uid" : myusername,
                 "to_uid" : target_username, 
@@ -280,6 +283,7 @@ class DAPIWebSocket(object):
         ex = {   
             "object" : "dapi_command",
             "data" : {
+                "id" : str(randint(1000000,9000000)),
                 "command" : "send_message",
                 "sub_command" : sub_command,
                 "from_uid" : myusername,

@@ -263,6 +263,23 @@ class ElectrumWindow(QMainWindow):
         self.update_console()
         self.clear_receive_tab()
         self.update_receive_tab()
+
+        ### Make sure we can login to DAPI ###
+
+        username = self.wallet.storage.get('username', None)
+        self._profile = dapi.get_profile(username, username)
+
+        if(not self._profile):
+            QMessageBox.information(None,"Unable to login", _("Unable to login to dapi"))
+            import sys
+            sys.exit()
+
+        print self._profile
+        if self._profile.get("status", None) != 2:
+            QMessageBox.information(None,"Unable to login", _("Please validate account before using DashPay"))
+            import sys
+            sys.exit()
+
         self.show()
         run_hook('load_wallet', wallet, self)
 
@@ -2035,7 +2052,7 @@ class ElectrumWindow(QMainWindow):
         QMessageBox.information(self, _('Information'), str("Success!"), _('OK'))
 
     def dapi_payment_request(self, username2, obj):
-        if self.question("Payment Request?\n\nWould you like to buy '" + obj['description'] + "' for " + obj['amount']+ " DASH to " + obj['address'] + ". Send Payment?"):
+        if self.question("Payment Request?\n\nWould you like to buy '" + obj['description'] + "' for " + self.format_amount(obj['amount']) + " DASH to " + obj['address'] + ". Send Payment?"):
             
             address = obj['address']
             amount = obj['amount']
